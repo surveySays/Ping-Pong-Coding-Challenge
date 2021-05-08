@@ -3,6 +3,7 @@ const initialState = {
   rightScore: 0,
   leftWins: 0,
   rightWins: 0,
+  popup: false,
 };
 
 function Reducer(state = initialState, action) {
@@ -26,6 +27,11 @@ function Reducer(state = initialState, action) {
       return {
         ...state,
         rightWins: state.rightWins + 1,
+      };
+    case "SET_POPUP":
+      return {
+        ...state,
+        popup: !state.popup,
       };
     case "RESET_SCORE":
       return {

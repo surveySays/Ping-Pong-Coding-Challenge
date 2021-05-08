@@ -12,40 +12,37 @@ import { render } from "@testing-library/react";
 
 const PingPong = (props) => {
   const [winner, setWinner] = useState("");
-  const [showWinner, setShowWinner] = useState(false);
 
   useEffect(() => {
     if (props.leftScore == 5) {
-      incrementWins("INCREMENT_LEFT_WINS");
-      setWinner("Player");
-      resetScore();
+      leftWin();
     } else if (props.rightScore == 5) {
-      incrementWins("INCREMENT_RIGHT_WINS");
-      setWinner("AI");
-      resetScore();
+      rightWin();
     }
   });
 
-  const resetScore = () => {
+  const leftWin = () => {
+    props.dispatch({ type: "INCREMENT_LEFT_WINS" });
+    setWinner("Player");
+    props.dispatch({ type: "SET_POPUP" });
     props.dispatch({ type: "RESET_SCORE" });
-    popUp();
   };
 
-  const popUp = () => {
-    return render(<Popup winner={winner} />);
+  const rightWin = () => {
+    props.dispatch({ type: "INCREMENT_RIGHT_WINS" });
+    setWinner("AI");
+    props.dispatch({ type: "SET_POPUP" });
+    props.dispatch({ type: "RESET_SCORE" });
   };
 
   const incrementScore = (scored) => {
     props.dispatch({ type: scored });
   };
 
-  const incrementWins = (win) => {
-    props.dispatch({ type: win });
-  };
-
   const classes = useStyles();
   return (
     <div>
+      <Popup winner={winner} />
       <div className={classes.wrapper}>
         <h3>Player Score: {props.leftScore}</h3>
         <h3>

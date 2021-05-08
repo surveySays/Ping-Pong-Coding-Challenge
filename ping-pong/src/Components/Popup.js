@@ -1,74 +1,77 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 //MaterialUI
 import { makeStyles } from "@material-ui/core/styles";
 import Backdrop from "@material-ui/core/Backdrop";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
-import CloseIcon from "@material-ui/icons/Close";
-import IconButton from "@material-ui/core/IconButton";
+
+//Redux
+import { connect } from "react-redux";
 
 const Popup = (props) => {
-  const [open, setOpen] = useState(true);
+  const close = () => {
+    props.dispatch({ type: "SET_POPUP" });
+  };
+
+  const sendData = () => {
+    console.log("here");
+    const data = {
+      name: "tester",
+      wins: 55,
+      losses: 111,
+    };
+
+    fetch(
+      "https://us-central1-ping-pong-48e76.cloudfunctions.net/api/addplayer/",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Success:", data);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
 
   const classes = useStyles();
   return (
     <div>
-      {props.winner == "Player" ? (
-        <Backdrop className={classes.backdrop} open={open}>
-          <div className={classes.box}>
-            <h3>You WON! Save your score on the leaderboard!</h3>
-            <h5>Wins: 5</h5>
-            <h5>Losses: 5</h5>
-            <Typography>Name</Typography>
-            <TextField
-              style={{ marginTop: 10 }}
-              id="outlined-basic"
-              label="Name"
-              variant="outlined"
-              autoFocus={false}
-              InputLabelProps={{ classes: { root: classes.textF } }}
-              InputProps={{ className: classes.multilineColor }}
-              className={classes.textF}
-              //value={email}
-              //onChange={(e) => setEmail(e.target.value)}
-            />
-            <div className={classes.button} onClick={() => setOpen(false)}>
-              <h4 style={{ margin: 0 }}>Keep Playing!</h4>
-            </div>
-            <div className={classes.button}>
-              <h4 style={{ margin: 0 }}>Save Score</h4>
-            </div>
+      <Backdrop className={classes.backdrop} open={props.popup}>
+        <div className={classes.box}>
+          <h3>{props.winner} WON! Save your score on the leaderboard!</h3>
+          <h5>Wins: 5</h5>
+          <h5>Losses: 5</h5>
+          <Typography>Name</Typography>
+          <TextField
+            style={{ marginTop: 10 }}
+            id="outlined-basic"
+            label="Name"
+            variant="outlined"
+            autoFocus={false}
+            InputLabelProps={{ classes: { root: classes.textF } }}
+            InputProps={{ className: classes.multilineColor }}
+            className={classes.textF}
+            //value={email}
+            //onChange={(e) => setEmail(e.target.value)}
+          />
+          <div className={classes.button}>
+            <h4 style={{ margin: 0 }} onClick={() => close()}>
+              Keep Playing!
+            </h4>
           </div>
-        </Backdrop>
-      ) : (
-        <Backdrop className={classes.backdrop} open={open}>
-          <div className={classes.box}>
-            <h3>AI WON! Save your score on the leaderboard!</h3>
-            <h5>Wins: 5</h5>
-            <h5>Losses: 5</h5>
-            <Typography>Name</Typography>
-            <TextField
-              style={{ marginTop: 10 }}
-              id="outlined-basic"
-              label="Name"
-              variant="outlined"
-              autoFocus={false}
-              InputLabelProps={{ classes: { root: classes.textF } }}
-              InputProps={{ className: classes.multilineColor }}
-              className={classes.textF}
-              //value={email}
-              //onChange={(e) => setEmail(e.target.value)}
-            />
-            <div className={classes.button} onClick={() => setOpen(false)}>
-              <h4 style={{ margin: 0 }}>Keep Playing!</h4>
-            </div>
-            <div className={classes.button}>
-              <h4 style={{ margin: 0 }}>Save Score</h4>
-            </div>
+          <div className={classes.button} onClick={() => sendData()}>
+            <h4 style={{ margin: 0 }}>Save Score</h4>
           </div>
-        </Backdrop>
-      )}
+        </div>
+      </Backdrop>
     </div>
   );
 };
@@ -128,4 +131,14 @@ export const useStyles = makeStyles(() => ({
   },
 }));
 
-export default Popup;
+function mapStateToProps(state) {
+  return {
+    leftScore: state.leftScore,
+    rightScore: state.rightScore,
+    leftWins: state.leftWins,
+    rightWins: state.rightWins,
+    popup: state.popup,
+  };
+}
+
+export default connect(mapStateToProps)(Popup);
