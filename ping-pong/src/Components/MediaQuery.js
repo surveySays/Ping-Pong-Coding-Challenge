@@ -13,7 +13,7 @@ const MediaQuery = (query) => {
     media.addListener(listener);
 
     return () => media.removeListener(listener);
-  }, [query]);
+  }, [query, matches]);
 
   return matches;
 };

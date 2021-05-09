@@ -8,22 +8,21 @@ import { connect } from "react-redux";
 
 //Components
 import Popup from "./Popup";
-import { render } from "@testing-library/react";
 
 const PingPong = (props) => {
   const [winner, setWinner] = useState("");
 
   useEffect(() => {
-    if (props.leftScore == 5) {
+    if (props.leftScore === 5) {
       leftWin();
-    } else if (props.rightScore == 5) {
+    } else if (props.rightScore === 5) {
       rightWin();
     }
   });
 
   const leftWin = () => {
     props.dispatch({ type: "INCREMENT_LEFT_WINS" });
-    setWinner("Player");
+    setWinner("You");
     props.dispatch({ type: "SET_POPUP" });
     props.dispatch({ type: "RESET_SCORE" });
   };

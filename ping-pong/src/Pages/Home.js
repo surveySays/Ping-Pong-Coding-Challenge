@@ -4,7 +4,6 @@ import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 
 //Components
-import MediaQuery from "../Components/MediaQuery";
 import PingPong from "../Components/PingPong";
 import Leaderboard from "../Components/Leaderboard";
 
@@ -26,6 +25,7 @@ export const useStyles = makeStyles(() => ({
     width: "100%",
     height: "100%",
     backgroundColor: "#000000",
+    minHeight: 500,
   },
   innerRoot: {
     width: "92%",

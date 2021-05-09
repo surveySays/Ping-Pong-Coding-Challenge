@@ -1,93 +1,144 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 //MaterialUI
 import { makeStyles } from "@material-ui/core/styles";
 import Backdrop from "@material-ui/core/Backdrop";
 import TextField from "@material-ui/core/TextField";
-import Typography from "@material-ui/core/Typography";
 
 //Redux
 import { connect } from "react-redux";
 
+//Components
+import MediaQuery from "../Components/MediaQuery";
+import AlertSuccess from "../Components/AlertSuccess";
+
+//APIcall
+import { AddLeader } from "../Firebase/AddLeader";
+
 const Popup = (props) => {
+  const isMobile = MediaQuery("(min-width: 820px)");
+  const [name, setName] = useState("");
+  const [nameError, setNameError] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+
   const close = () => {
+    setName("");
+    setNameError(false);
     props.dispatch({ type: "SET_POPUP" });
   };
 
   const sendData = () => {
-    console.log("here");
+    if (!name.trim()) {
+      setNameError(true);
+      return;
+    }
+
+    setNameError(false);
+
     const data = {
-      name: "tester",
-      wins: 55,
-      losses: 111,
+      name: name,
+      wins: props.leftWins,
+      losses: props.rightWins,
     };
 
-    fetch(
-      "https://us-central1-ping-pong-48e76.cloudfunctions.net/api/addplayer/",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      }
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Success:", data);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
+    AddLeader(data);
+    close();
+
+    setShowAlert(true);
+
+    setTimeout(function () {
+      setShowAlert(false);
+    }, 4000);
   };
 
   const classes = useStyles();
   return (
     <div>
-      <Backdrop className={classes.backdrop} open={props.popup}>
+      {showAlert ? <AlertSuccess /> : null}
+      <Backdrop
+        className={classes.backdrop}
+        open={props.popup}
+        style={{
+          backgroundColor:
+            props.winner === "You"
+              ? "rgb(152, 255, 117, 0.7)"
+              : "rgb(111, 66, 66, 0.7)",
+        }}
+      >
         <div className={classes.box}>
-          <h3>{props.winner} WON! Save your score on the leaderboard!</h3>
-          <h5>Wins: 5</h5>
-          <h5>Losses: 5</h5>
-          <Typography>Name</Typography>
+          {props.winner === "You" ? (
+            <h2 style={{ textAlign: "center" }}>You won!</h2>
+          ) : (
+            <h2 style={{ textAlign: "center" }}>You lost!</h2>
+          )}
+          <h3 style={{ textAlign: "center" }}>
+            Save your current score on the leaderboard?
+          </h3>
+          <h4>Wins: {props.leftWins}</h4>
+          <h4>Losses: {props.rightWins}</h4>
           <TextField
-            style={{ marginTop: 10 }}
+            style={{ marginTop: 10, marginBottom: 10 }}
             id="outlined-basic"
             label="Name"
             variant="outlined"
+            error={nameError}
             autoFocus={false}
             InputLabelProps={{ classes: { root: classes.textF } }}
             InputProps={{ className: classes.multilineColor }}
             className={classes.textF}
-            //value={email}
-            //onChange={(e) => setEmail(e.target.value)}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
           />
-          <div className={classes.button}>
-            <h4 style={{ margin: 0 }} onClick={() => close()}>
-              Keep Playing!
-            </h4>
-          </div>
-          <div className={classes.button} onClick={() => sendData()}>
-            <h4 style={{ margin: 0 }}>Save Score</h4>
-          </div>
+          {isMobile ? (
+            <div className={classes.wrapper}>
+              <div className={classes.button}>
+                <h4 style={{ margin: 0 }} onClick={() => close()}>
+                  Keep Playing!
+                </h4>
+              </div>
+              <div className={classes.button} onClick={() => sendData()}>
+                <h4 style={{ margin: 0 }}>Save Score</h4>
+              </div>
+            </div>
+          ) : (
+            <div className={classes.buttonMiddle}>
+              <div
+                className={classes.button}
+                style={{ marginTop: 10 }}
+                onClick={() => close()}
+              >
+                <h4 style={{ margin: 0 }}>Keep Playing!</h4>
+              </div>
+              <div
+                className={classes.button}
+                style={{ marginTop: 10 }}
+                onClick={() => sendData()}
+              >
+                <h4 style={{ margin: 0 }}>Save Score</h4>
+              </div>
+            </div>
+          )}
         </div>
       </Backdrop>
     </div>
   );
 };
 
-export const useStyles = makeStyles(() => ({
+export const useStyles = makeStyles((props) => ({
   box: {
     width: "50%",
-    height: 500,
+    height: "auto",
     border: "2px solid white",
     backgroundColor: "#000000",
     color: "white",
+    padding: 10,
   },
   backdrop: {
-    backgroundColor: "rgb(66, 66, 66, 0.7)",
-    zIndex: 3,
+    backgroundColor:
+      props.winner === "AI" ? "rgb(111, 66, 66, 0.7)" : "rgb(66, 66, 66, 0.7)",
+    zIndex: 5,
     overflowY: "hidden",
+    overflow: "hidden",
   },
   button: {
     padding: 10,
@@ -100,6 +151,17 @@ export const useStyles = makeStyles(() => ({
       backgroundColor: "grey",
       cursor: "pointer",
     },
+  },
+  wrapper: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    margin: 10,
+  },
+  buttonMiddle: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
   },
   multilineColor: {
     color: "white",

@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 
 //MaterialUI
 import { makeStyles } from "@material-ui/core/styles";
 
-//Components
+//CSS
+import "../App.css";
 
 //Firebase Functions Event Listener
 import { LoadLeaders } from "../Firebase/LoadLeaders";
@@ -11,6 +12,7 @@ import { LoadLeaders } from "../Firebase/LoadLeaders";
 const Leaderboard = () => {
   const classes = useStyles();
   const leaderboard = LoadLeaders();
+
   return (
     <div>
       <div className={classes.header}>
@@ -18,12 +20,20 @@ const Leaderboard = () => {
         <div className={classes.wrapper}>
           <h4>Names</h4>
           <div className={classes.right}>
-            <h4>Losses</h4>
-            <h4>Wins</h4>
+            <h4 style={{ marginLeft: -10 }}>Losses</h4>
+            <h4 style={{ marginRight: 10 }}>Wins</h4>
           </div>
         </div>
       </div>
-      <div className={classes.limits}>
+      <div
+        style={{
+          maxHeight: 500,
+          overflowY: "scroll",
+          marginBottom: 20,
+          borderBottom: "2px solid white",
+        }}
+        className="scroll"
+      >
         {leaderboard.map((people, index) => (
           <div className={classes.wrapper}>
             <h4>
